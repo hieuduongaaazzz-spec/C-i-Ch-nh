@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cưới Chính - Lời bài hát</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      height: 100vh;
+      background: black;
+      overflow: hidden;
+      color: white;
+      font-family: "Segoe UI", sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    canvas#rain, canvas#visualizer {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    .container {
+      display: flex;
+      width: 90%;
+      max-width: 1100px;
+      background: rgba(0, 0, 0, 0.65);
+      border-radius: 20px;
+      overflow: hidden;
+      z-index: 3;
+      box-shadow: 0 0 30px rgba(255, 255, 255, 0.15);
+      backdrop-filter: blur(5px);
+    }
+
+    .lyrics {
+      flex: 1;
+      padding: 40px;
+      font-size: 18px;
+      line-height: 1.8;
+      position: relative;
+      color: #fff;
+      z-index: 3;
+    }
+
+    .lyrics h1 {
+      text-align: center;
+      color: #ff69b4;
+      font-size: 32px;
+      margin-bottom: 30px;
+      animation: glow 2s ease-in-out infinite alternate;
+    }
+
+    .image {
+      flex: 1;
+      background-image: url("https://i.imgur.com/GnY3HWe.jpg");
+      background-size: cover;
+      background-position: center;
+      filter: brightness(0.7);
+    }
+
+    .line {
+      opacity: 0;
+      transform: translateY(20px);
+      transition: all 1s ease;
+    }
+
+    .line.show {
+      opacity: 1;
+      transform: translateY(0);
+      text-shadow: 0 0 10px #fff, 0 0 20px #ff4fa0, 0 0 40px #ff4fa0;
+      animation: fadeIn 1.5s ease forwards;
+    }
+
+    @keyframes glow {
+      from { text-shadow: 0 0 5px #ff4fa0, 0 0 10px #ff4fa0; }
+      to { text-shadow: 0 0 20px #ff80c0, 0 0 40px #ff4fa0; }
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    audio {
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <!-- Hiệu ứng mưa -->
+  <canvas id="rain"></canvas>
+
+  <!-- Hiệu ứng sóng nhạc -->
+  <canvas id="visualizer"></canvas>
+
+  <!-- Nhạc nền -->
+  <audio id="music" autoplay loop>
+    <source src="https://files.catbox.moe/x5iz9y.mp3" type="audio/mpeg">
+  </audio>
+
+  <!-- Nội dung -->
+  <div class="container">
+    <div class="lyrics">
+      <h1>Cưới Chính</h1>
+      <div id="lyrics-container"></div>
+    </div>
+    <div class="image"></div>
+  </div>
+
+  <script>
+    // ======================= HIỆU ỨNG MƯA =======================
+    const rainCanvas = document.getElementById('rain');
+    const rainCtx = rainCanvas.getContext('2d');
+    rainCanvas.width = window.innerWidth;
+    rainCanvas.height = window.innerHeight;
+
+    const rainDrops = Array.from({ length: 150 }, () => ({
+      x: Math.random() * rainCanvas.width,
+      y: Math.random() * rainCanvas.height,
+      length: Math.random() * 20 + 10,
+      speed: Math.random() * 4 + 2,
+      opacity: Math.random()
+    }));
+
+    function drawRain() {
+      rainCtx.clearRect(0, 0, rainCanvas.width, rainCanvas.height);
+      rainCtx.strokeStyle = "rgba(255,255,255,0.3)";
+      rainCtx.lineWidth = 1;
+      rainCtx.lineCap = "round";
+
+      rainDrops.forEach(drop => {
+        rainCtx.beginPath();
+        rainCtx.moveTo(drop.x, drop.y);
+        rainCtx.lineTo(drop.x, drop.y + drop.length);
+        rainCtx.stroke();
+      });
+      moveRain();
+    }
+
+    function moveRain() {
+      rainDrops.forEach(drop => {
+        drop.y += drop.speed;
+        if (drop.y > rainCanvas.height) {
+          drop.y = -20;
+          drop.x = Math.random() * rainCanvas.width;
+        }
+      });
+    }
+
+    function animateRain() {
+      drawRain();
+      requestAnimationFrame(animateRain);
+    }
+    animateRain();
+
+    // ======================= LỜI BÀI HÁT =======================
+    const lines = [
+      "Ước muốn lớn nhất cuộc đời anh",
+      "Có cái đám cưới thật ngời xanh",
+      "Xe hoa rước dâu về đô thành",
+      "",
+      "Áo vest trắng bóc thật đẹp trai",
+      "Váy cưới lấp lánh nàng vừa thay",
+      "Hôm nay đám cưới ai?",
+      "",
+      "Là anh người con trai, là tương lai",
+      "Là thương ai chẳng mờ phai",
+      "Chẳng hay nói nhiều mà lại yêu thuỷ chung",
+      "Gặp nhau thì vui, cưới là tơ Duyên",
+      "Qua cầu là Nợ nhau",
+      "Tương lai có giàu là nhờ nhau",
+      "Mai phai mái đầu thì chờ nhau",
+      "",
+      "[Chorus]:",
+      "Mình cầm tay nhau",
+      "Mai này về bên nhau",
+      "Thương là thương em rồi mà",
+      "Chẳng nói ra được câu nào",
+      "Bên nhau cũng đã mấy năm trời",
+      "Thời em đẹp nhất trong đời",
+      "Mà nhớ lúc đó thì anh chỉ có trái tim thật to",
+      "",
+      "Vào ngày Vu Quy",
+      "Hoa đầy đường em đi",
+      "Nhà trai anh qua rước dâu",
+      "Trầu cau khăn đóng trên đầu",
+      "Khi mà yêu được em trong đời",
+      "Tình yêu nồng say không lời",
+      "Sợi tơ mà Ông Trời đã sắp xếp cho tình ta"
+    ];
+
+    const container = document.getElementById("lyrics-container");
+    let i = 0;
+
+    function showLine() {
+      if (i < lines.length) {
+        const p = document.createElement("p");
+        p.classList.add("line");
+        p.textContent = lines[i];
+        container.appendChild(p);
+        setTimeout(() => p.classList.add("show"), 100);
+        i++;
+        setTimeout(showLine, 1800);
+      }
+    }
+    showLine();
+
+    // ======================= HIỆU ỨNG SÓNG NHẠC =======================
+    const audio = document.getElementById('music');
+    const visualizer = document.getElementById('visualizer');
+    const vCtx = visualizer.getContext('2d');
+    visualizer.width = window.innerWidth;
+    visualizer.height = window.innerHeight;
+
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    const src = audioCtx.createMediaElementSource(audio);
+    const analyser = audioCtx.createAnalyser();
+    src.connect(analyser);
+    analyser.connect(audioCtx.destination);
+    analyser.fftSize = 256;
+
+    const bufferLength = analyser.frequencyBinCount;
+    const dataArray = new Uint8Array(bufferLength);
+
+    function renderVisualizer() {
+      requestAnimationFrame(renderVisualizer);
+      analyser.getByteFrequencyData(dataArray);
+
+      vCtx.clearRect(0, 0, visualizer.width, visualizer.height);
+      const barWidth = (visualizer.width / bufferLength) * 2.5;
+      let x = 0;
+
+      for (let i = 0; i < bufferLength; i++) {
+        const barHeight = dataArray[i] * 1.5;
+        const hue = 300 + (i / bufferLength) * 60;
+        vCtx.fillStyle = `hsl(${hue}, 100%, 70%)`;
+        vCtx.fillRect(x, visualizer.height - barHeight, barWidth, barHeight);
+        x += barWidth + 1;
+      }
+    }
+
+    audio.onplay = () => {
+      audioCtx.resume();
+      renderVisualizer();
+    };
+  </script>
+</body>
+</html>
